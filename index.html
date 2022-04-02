@@ -14,66 +14,7 @@
     <a href="">me</a>
     <a href="">test</a>
     <div><a href="">inside a div</a></div>
-    <script>
-        console.log("I m ready");
-        function clickOrigin(e){
-            var target = e.target;
-            var tag = [];
-            tag.tagType = target.tagName.toLowerCase();
-            tag.tagClass = target.className.split(' ');
-            tag.id = target.id;
-            tag.parent = target.parentNode;
-
-            return tag;
-        }
-
-        var tagsToIdentify = ['img','a'];
-
-        document.body.onclick = function(e){
-            elem = clickOrigin(e);
-
-            for (i=0;i<tagsToIdentify.length;i++){
-                if (elem.tagType == tagsToIdentify[i]){
-                    console.log('You\'ve clicked a monitored tag (' + elem.tagType + ', in this case).');
-                    return false; // or do something else.
-                }
-            }
-        };
-    </script>
-    <script>
-        document.querySelectorAll("a").forEach((a) => { 
-            a.addEventListener('click', (e) => { 
-                e.preventDefault(); 
-                const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); 
-                svg.setAttribute("width", "20");
-                svg.setAttribute("height", "20");
-                svg.setAttribute("viewbox", "0 0 20 20");
-                svg.setAttribute('style', 'background-color:#faebd7;');
-
-                //line
-                //line path
-                line_path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                line_path.setAttribute('d', 'M 20,20 70,180 120,20 170,180');
-                line_path.setAttribute('fill', 'none');
-                line_path.setAttribute('stroke', '#8a2be2');
-                line_path.setAttribute('stroke-width', 5);
-                line_path.setAttribute('stroke-dasharray', "none");//破線 10,10 etc
-                line_path.setAttribute('stroke-linejoin', 'round'); //角 miter round bevel inherit
-                line_path.setAttribute('stroke-linecap', 'round'); //切れ目 butt round square inherit
-                line_path.setAttribute('opacity', 1);
-                line_path.setAttribute('fill-opacity', 1);
-                line_path.setAttribute('stroke-opacity', 1);
-                line_path.setAttribute('transform', "rotate(0)");
-
-                //作成した図形をsvgに追加
-                svg.appendChild( line_path );
-                svg.style.position = "absolute"; 
-                svg.style.left = e.pageX + "px"; 
-                svg.style.top = e.pageY + "px"; 
-                svg.style.zIndex = 99999; 
-                document.body.appendChild(svg);
-            }) 
-        })
-    </script>
+    
+    <script src="./mouse-freeze.js"></script>
 </body>
 </html>
