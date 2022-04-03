@@ -1,5 +1,4 @@
-function drawMouse(mouseX, mouseY){
-    console.log("this is drawMouse!");
+function drawCursor(mouseX, mouseY){
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); 
     svg.setAttribute("width", "12");
     svg.setAttribute("height", "19");
@@ -40,10 +39,20 @@ function drawMouse(mouseX, mouseY){
     document.body.appendChild(svg);
 }
 
-//main 
-document.querySelectorAll("a").forEach((a) => { 
-    a.addEventListener('click', (e) => { 
-        e.preventDefault(); 
-        drawMouse(e.pageX, e.pageY);
-    }) 
-})
+module.exports = {
+    startCursorTraces:()=>{
+        
+        console.log("this is cursor-traces!");
+
+        document.querySelectorAll("a").forEach((a) => { 
+            a.addEventListener('click', (e) => { 
+                e.preventDefault(); 
+                drawCursor(e.pageX, e.pageY);
+            }) 
+        })
+    },
+    sayHello:()=>{
+        console.log("say hello");
+    }
+}
+
