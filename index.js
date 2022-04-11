@@ -39,6 +39,30 @@ function drawCursor(mouseX, mouseY){
     document.body.appendChild(svg);
 }
 
+function writeLocation(posX, posY){
+    var cursorList = [];
+    if(!sessionStorage.cursorList){
+        console.log("don't have history");
+        cursorList.push({x:posX,y:posY});
+        sessionStorage.cursorList = JSON.stringify(cursorList);
+    }else{
+        const temp = sessionStorage.cursorList;
+        cursorList = JSON.parse(temp);
+        cursorList.push({x:posX,y:posY});
+        sessionStorage.cursorList = JSON.stringify(cursorList);
+    }
+}
+
+function drawList(){
+    const cursorList = JSON.parse (sessionStorage.cursorList);
+    console.log(cursorList);
+    if(cursorList){
+        cursorList.map((item)=>{
+            drawCursor(item.x,item.y);
+        })
+    }
+}
+
 module.exports = {
     startCursorTraces:()=>{
         
@@ -46,13 +70,10 @@ module.exports = {
 
         document.querySelectorAll("a").forEach((a) => { 
             a.addEventListener('click', (e) => { 
-                e.preventDefault(); 
-                drawCursor(e.pageX, e.pageY);
+                writeLocation(e.pageX, e.pageY);
             }) 
-        })
+        });
+        drawList();
     },
-    sayHello:()=>{
-        console.log("say hello");
-    }
 }
 
