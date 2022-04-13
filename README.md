@@ -1,7 +1,7 @@
 # Use by CDN
 
 ``` html
-<script src="https://unpkg.com/cursor-traces@0.0.3/min.js"></script>
+<script src="https://unpkg.com/cursor-traces@0.0.4/min.js"></script>
 ```
 
 - put this in your html header part

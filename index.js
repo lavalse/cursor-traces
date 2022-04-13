@@ -71,6 +71,7 @@ module.exports = {
         document.querySelectorAll("a").forEach((a) => { 
             a.addEventListener('click', (e) => { 
                 writeLocation(e.pageX, e.pageY);
+                drawCursor(e.pageX, e.pageY);
             }) 
         });
         drawList();
