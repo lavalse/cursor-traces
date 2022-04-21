@@ -54,12 +54,13 @@ function writeLocation(posX, posY){
 }
 
 function drawList(){
-    const cursorList = JSON.parse (sessionStorage.cursorList);
-    console.log(cursorList);
-    if(cursorList){
-        cursorList.map((item)=>{
-            drawCursor(item.x,item.y);
-        })
+    if(sessionStorage.cursorList){
+        const cursorList = JSON.parse (sessionStorage.cursorList);
+        if(cursorList){
+            cursorList.map((item)=>{
+                drawCursor(item.x,item.y);
+            })
+        }
     }
 }
 
@@ -72,14 +73,3 @@ function findALabel(startNode) {
         return findALabel(startNode.parentElement);
     }
 }
-
-function startCursorTraces(){
-    console.log("this is cursor-traces!");
-    document.querySelectorAll("a").forEach((a) => { 
-        a.addEventListener('click', (e) => { 
-            writeLocation(e.pageX, e.pageY);
-            drawCursor(e.pageX, e.pageY);
-        }) 
-    });
-    drawList();
-};
