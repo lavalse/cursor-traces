@@ -63,6 +63,16 @@ function drawList(){
     }
 }
 
+function findALabel(startNode) {
+    if (!(startNode instanceof HTMLElement)) return false;
+    if (startNode.nodeName === "HTML") return false;
+    if (startNode.nodeName==="A"){
+        return true;
+    }else{
+        return findALabel(startNode.parentElement);
+    }
+}
+
 function startCursorTraces(){
     console.log("this is cursor-traces!");
     document.querySelectorAll("a").forEach((a) => { 
