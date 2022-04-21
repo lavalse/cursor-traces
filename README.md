@@ -13,3 +13,6 @@
 startCursorTraces();
 </script>
 ```
+![This is an image](https://payload.cargocollective.com/1/0/8955/14362679/cursor-traces.gif)
+
+https://eventstructure.com/cursor-traces
