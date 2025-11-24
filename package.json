@@ -1,7 +1,7 @@
 {
   "name": "cursor-traces",
-  "version": "0.0.7",
-  "description": "",
+  "version": "0.0.8",
+  "description": "Leaves permanent cursor traces on links clicked, persisting across page reloads.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -12,7 +12,10 @@
   },
   "keywords": [
     "cursor",
-    "traces"
+    "trace",
+    "interaction",
+    "ux",
+    "mouse"
   ],
   "author": "red",
   "license": "ISC",
