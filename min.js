@@ -1,13 +1,13 @@
 (function(window) {
     'use strict';
 
-    // 懒加载模板变量
     let cursorTemplate = null;
 
-    // 创建或获取 SVG 模板
-    function getCursorTemplate() {
-        if (cursorTemplate) return cursorTemplate;
-        // 再次检查 document 是否存在
+    function getCursorTemplate(zIndex) {
+        if (cursorTemplate) {
+            cursorTemplate.style.zIndex = zIndex;
+            return cursorTemplate;
+        }
         if (typeof document === 'undefined') return null;
 
         const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -15,8 +15,8 @@
         svg.setAttribute("height", "19");
         svg.setAttribute("viewBox", "0 0 12 19");
         svg.style.position = "absolute";
-        svg.style.zIndex = "99999";
-        svg.style.pointerEvents = "none"; // 关键：不阻挡点击
+        svg.style.zIndex = zIndex;
+        svg.style.pointerEvents = "none";
 
         const paths = [
             { d: 'M0 16.015V0L11.591 11.619H4.81L4.399 11.743L0 16.015Z', fill: 'white' },
@@ -37,23 +37,21 @@
         return svg;
     }
 
-    function drawCursor(x, y) {
-        const template = getCursorTemplate();
-        // 确保 body 已加载且模板存在
-        if (!template || !document.body) return;
+    function drawCursor(x, y, zIndex) {
+        const template = getCursorTemplate(zIndex);
+        const mountPoint = document.body || document.documentElement;
+        if (!template || !mountPoint) return;
         
         const svg = template.cloneNode(true);
         svg.style.left = x + "px";
         svg.style.top = y + "px";
-        document.body.appendChild(svg);
+        mountPoint.appendChild(svg);
     }
 
     function getHistory() {
         try {
             return JSON.parse(sessionStorage.getItem('cursor-traces-list')) || [];
-        } catch (e) {
-            return [];
-        }
+        } catch (e) { return []; }
     }
 
     function recordPosition(x, y) {
@@ -61,31 +59,42 @@
             const list = getHistory();
             list.push({ x, y });
             sessionStorage.setItem('cursor-traces-list', JSON.stringify(list));
-        } catch (e) {
-            // 忽略存储错误（如隐身模式或配额满）
+        } catch (e) {}
+    }
+
+    function init(options) {
+        options = options || {};
+        if (typeof document === 'undefined') return;
+
+        const config = {
+            selector: options.selector || 'a',
+            zIndex: options.zIndex || '2147483647',
+            useCapture: options.useCapture !== undefined ? options.useCapture : true
+        };
+
+        console.log("CursorTraces: v1.1.0 Initialized");
+
+        const start = function() {
+            getHistory().forEach(function(item) {
+                drawCursor(item.x, item.y, config.zIndex);
+            });
+
+            document.addEventListener('click', function(e) {
+                const target = e.target.closest(config.selector);
+                if (target) {
+                    drawCursor(e.pageX, e.pageY, config.zIndex);
+                    recordPosition(e.pageX, e.pageY);
+                }
+            }, { capture: config.useCapture });
+        };
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', start);
+        } else {
+            start();
         }
     }
 
-    function init() {
-        if (typeof document === 'undefined') return;
-
-        console.log("CursorTraces: v1.0.0 Initialized");
-        
-        // 1. 恢复历史
-        const history = getHistory();
-        history.forEach(item => drawCursor(item.x, item.y));
-
-        // 2. 监听点击
-        document.addEventListener('click', (e) => {
-            const link = e.target.closest('a');
-            if (link) {
-                drawCursor(e.pageX, e.pageY);
-                recordPosition(e.pageX, e.pageY);
-            }
-        });
-    }
-
-    // 暴露给全局对象
     window.CursorTraces = {
         startCursorTraces: init
     };
