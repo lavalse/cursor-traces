@@ -26,6 +26,7 @@ Add the script and initialize it in your HTML.
 
 
 ### 2. Via NPM
+
 Bash
 npm install cursor-traces
 
@@ -34,4 +35,5 @@ const { startCursorTraces } = require('cursor-traces');
 
 // Initialize
 startCursorTraces();
+
 
