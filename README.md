@@ -40,7 +40,7 @@ Bash
 npm install cursor-traces
 ```
 JavaScript
-```
+```JavaScript
 const { startCursorTraces } = require('cursor-traces');
 
 // Initialize with default settings (tracks <a> tags)
@@ -53,6 +53,7 @@ startCursorTraces({
     useCapture: true          // Use capture phase (recommended)
 });
 ```
+
 
 
 
