@@ -13,14 +13,24 @@ Leaves a visual trace (custom cursor icon) at the location where you click a lin
 Add the script and initialize it in your HTML.
 
 ```html
-<script src="https://unpkg.com/cursor-traces@1.0.2/min.js"></script>
+<script src="https://unpkg.com/cursor-traces@1.0.3/min.js"></script>
 
 <script>
-    window.onload = function() {
-        if(window.CursorTraces) {
-            CursorTraces.startCursorTraces();
-        }
-    };
+    // Simple usage
+    if(window.CursorTraces) {
+        CursorTraces.startCursorTraces();
+    }
+
+    // Or with options
+    /*
+    if(window.CursorTraces) {
+        CursorTraces.startCursorTraces({
+            selector: 'a, button', // Track links and buttons
+            zIndex: '9999',        // Custom z-index
+            useCapture: true       // Force event capture
+        });
+    }
+    */
 </script>
 ```
 
@@ -32,10 +42,17 @@ npm install cursor-traces
 JavaScript
 ```
 const { startCursorTraces } = require('cursor-traces');
-const { startCursorTraces } = require('cursor-traces');
 
-// Initialize
+// Initialize with default settings (tracks <a> tags)
 startCursorTraces();
+
+// Or initialize with custom options
+startCursorTraces({
+    selector: 'a, .trace-me', // CSS selector for elements to trace
+    zIndex: '999999',         // Z-Index of the cursor icon
+    useCapture: true          // Use capture phase (recommended)
+});
 ```
+
 
 
