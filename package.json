@@ -1,8 +1,13 @@
 {
   "name": "cursor-traces",
-  "version": "0.0.8",
+  "version": "1.0.0",
   "description": "Leaves permanent cursor traces on links clicked, persisting across page reloads.",
   "main": "index.js",
+  "files": [
+    "index.js",
+    "min.js",
+    "README.md"
+  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
