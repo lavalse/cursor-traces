@@ -1,0 +1,27 @@
+name: Publish to NPM
+
+# 触发条件：当你在 GitHub 上创建一个新的 Release 时触发
+on:
+  release:
+    types: [created]
+
+jobs:
+  publish-gpr:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. 拉取代码
+      - uses: actions/checkout@v4
+
+      # 2. 设置 Node.js 环境
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      # 3. 安装依赖 (如果有构建步骤，如 tsc/webpack，请在此处添加 npm run build)
+      - run: npm install
+      
+      # 4. 发布到 NPM
+      - run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
