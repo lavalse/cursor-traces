@@ -1,23 +1,27 @@
-# Use by CDN
+# cursor-traces
 
-``` html
-<script src="https://unpkg.com/cursor-traces@0.0.8/min.js"></script>
-```
+Leaves a visual trace (custom cursor icon) at the location where you click a link. The traces persist across page reloads within the session.
 
-- put this in your html header part
-- in your html body , use the the function `startCursorTraces()`
+## Preview
+
+![Preview](https://payload.cargocollective.com/1/0/8955/14362679/cursor-traces.gif)
+
+## Usage
+
+### 1. Via CDN (Recommended for static sites)
+
+Add the script and initialize it in your HTML.
 
 ```html
-    
+<script src="[https://unpkg.com/cursor-traces@1.0.0/min.js](https://unpkg.com/cursor-traces@1.0.0/min.js)"></script>
+
 <script>
-    // Initialize after window loads
     window.onload = function() {
-        // Now using the namespace to avoid conflicts
-        CursorTraces.startCursorTraces();
+        if(window.CursorTraces) {
+            CursorTraces.startCursorTraces();
+        }
     };
 </script>
-```
-![This is an image](https://payload.cargocollective.com/1/0/8955/14362679/cursor-traces.gif)
 
-https://eventstructure.com/cursor-traces
+
 
