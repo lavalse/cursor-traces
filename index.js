@@ -1,12 +1,15 @@
 /**
- * cursor-traces v1.0.0
+ * cursor-traces v1.0.3
  * (CommonJS Module)
  */
 
 let cursorTemplate = null;
 
-function getCursorTemplate() {
-    if (cursorTemplate) return cursorTemplate;
+function getCursorTemplate(zIndex) {
+    if (cursorTemplate) {
+        cursorTemplate.style.zIndex = zIndex;
+        return cursorTemplate;
+    }
     if (typeof document === 'undefined') return null;
 
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -14,7 +17,7 @@ function getCursorTemplate() {
     svg.setAttribute("height", "19");
     svg.setAttribute("viewBox", "0 0 12 19");
     svg.style.position = "absolute";
-    svg.style.zIndex = "99999";
+    svg.style.zIndex = zIndex;
     svg.style.pointerEvents = "none";
 
     const paths = [
@@ -36,14 +39,15 @@ function getCursorTemplate() {
     return svg;
 }
 
-function drawCursor(x, y) {
-    const template = getCursorTemplate();
-    if (!template || !document.body) return;
+function drawCursor(x, y, zIndex) {
+    const template = getCursorTemplate(zIndex);
+    const mountPoint = document.body || document.documentElement;
+    if (!template || !mountPoint) return;
     
     const svg = template.cloneNode(true);
     svg.style.left = x + "px";
     svg.style.top = y + "px";
-    document.body.appendChild(svg);
+    mountPoint.appendChild(svg);
 }
 
 function getHistory() {
@@ -60,18 +64,32 @@ function recordPosition(x, y) {
     } catch (e) {}
 }
 
-function init() {
-    if (typeof document === 'undefined') return;
+function init(options = {}) {
+    if (typeof document === 'undefined' || typeof window === 'undefined') return;
 
-    getHistory().forEach(item => drawCursor(item.x, item.y));
+    const config = {
+        selector: options.selector || 'a',
+        zIndex: options.zIndex || '2147483647',
+        useCapture: options.useCapture !== undefined ? options.useCapture : true
+    };
 
-    document.addEventListener('click', (e) => {
-        const link = e.target.closest('a');
-        if (link) {
-            drawCursor(e.pageX, e.pageY);
-            recordPosition(e.pageX, e.pageY);
-        }
-    });
+    const start = () => {
+        getHistory().forEach(item => drawCursor(item.x, item.y, config.zIndex));
+
+        document.addEventListener('click', (e) => {
+            const target = e.target.closest(config.selector);
+            if (target) {
+                drawCursor(e.pageX, e.pageY, config.zIndex);
+                recordPosition(e.pageX, e.pageY);
+            }
+        }, { capture: config.useCapture });
+    };
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', start);
+    } else {
+        start();
+    }
 }
 
 module.exports = {
