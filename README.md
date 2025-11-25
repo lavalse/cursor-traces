@@ -13,7 +13,7 @@ Leaves a visual trace (custom cursor icon) at the location where you click a lin
 Add the script and initialize it in your HTML.
 
 ```html
-<script src="https://unpkg.com/cursor-traces@1.0.3/min.js"></script>
+<script src="https://unpkg.com/cursor-traces@1.0.4/min.js"></script>
 
 <script>
     // Simple usage
@@ -53,6 +53,7 @@ startCursorTraces({
     useCapture: true          // Use capture phase (recommended)
 });
 ```
+
 
 
 
