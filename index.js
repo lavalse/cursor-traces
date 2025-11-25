@@ -1,5 +1,5 @@
 /**
- * cursor-traces v1.0.3
+ * cursor-traces v1.0.4
  * (CommonJS Module)
  */
 
@@ -95,3 +95,4 @@ function init(options = {}) {
 module.exports = {
     startCursorTraces: init
 };
+
