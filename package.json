@@ -1,6 +1,6 @@
 {
   "name": "cursor-traces",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Leaves permanent cursor traces on links clicked, persisting across page reloads.",
   "main": "index.js",
   "files": [
