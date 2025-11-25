@@ -36,7 +36,7 @@ Add the script and initialize it in your HTML.
 
 ### 2. Via NPM
 Bash
-```
+```Bash
 npm install cursor-traces
 ```
 JavaScript
@@ -53,6 +53,7 @@ startCursorTraces({
     useCapture: true          // Use capture phase (recommended)
 });
 ```
+
 
 
 
