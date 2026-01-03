@@ -24,7 +24,7 @@
     "mouse"
   ],
   "author": "red",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/lavalse/cursor-traces/issues"
   },

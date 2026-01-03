@@ -94,7 +94,7 @@ CursorTraces.clearHistory();
 
 ## License
 
-ISC
+MIT
 
 
 
