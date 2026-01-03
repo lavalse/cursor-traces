@@ -13,7 +13,7 @@ Leaves a visual trace (custom cursor icon) at the location where you click a lin
 Add the script and initialize it in your HTML.
 
 ```html
-<script src="https://unpkg.com/cursor-traces@1.0.5/min.js"></script>
+<script src="https://unpkg.com/cursor-traces@1.1.0/min.js"></script>
 
 <script>
     // Simple usage
@@ -35,13 +35,13 @@ Add the script and initialize it in your HTML.
 ```
 
 ### 2. Via NPM
-Bash
-```Bash
+
+```bash
 npm install cursor-traces
 ```
-JavaScript
-```JavaScript
-const { startCursorTraces } = require('cursor-traces');
+
+```javascript
+const { startCursorTraces, destroy, clearHistory } = require('cursor-traces');
 
 // Initialize with default settings (tracks <a> tags)
 startCursorTraces();
@@ -53,6 +53,48 @@ startCursorTraces({
     useCapture: true          // Use capture phase (recommended)
 });
 ```
+
+## API
+
+### `startCursorTraces(options?)`
+
+Initialize cursor tracing.
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `selector` | `string` | `'a'` | CSS selector for elements to track |
+| `zIndex` | `string \| number` | `'2147483647'` | Z-index of cursor traces |
+| `useCapture` | `boolean` | `true` | Use capture phase for click events |
+
+### `destroy()`
+
+Clean up all resources. Removes event listeners, disconnects ResizeObserver, and removes all cursor traces from the DOM.
+
+```javascript
+// CommonJS
+const { destroy } = require('cursor-traces');
+destroy();
+
+// Browser
+CursorTraces.destroy();
+```
+
+### `clearHistory()`
+
+Clear the session storage history. This removes all saved cursor positions.
+
+```javascript
+// CommonJS
+const { clearHistory } = require('cursor-traces');
+clearHistory();
+
+// Browser
+CursorTraces.clearHistory();
+```
+
+## License
+
+ISC
 
 
 

@@ -1,6 +1,6 @@
 /**
- * cursor-traces v1.0.5
- * (Browser Global) - Fixed Infinite Scroll Bug (Vertical & Horizontal)
+ * cursor-traces v1.1.0
+ * (Browser Global) - Added destroy() and clearHistory() methods
  */
 (function(window) {
     'use strict';

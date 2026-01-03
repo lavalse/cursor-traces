@@ -1,6 +1,6 @@
 /**
- * cursor-traces v1.0.5
- * (CommonJS Module) - Fixed Infinite Scroll Bug (Vertical & Horizontal)
+ * cursor-traces v1.1.0
+ * (CommonJS Module) - Added destroy() and clearHistory() methods
  */
 
 let cursorTemplate = null;
