@@ -1,12 +1,13 @@
 {
   "name": "cursor-traces",
-  "version": "1.0.5",
+  "version": "1.1.0",
   "description": "Leaves permanent cursor traces on links clicked, persisting across page reloads.",
   "main": "index.js",
   "files": [
     "index.js",
     "min.js",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -23,7 +24,7 @@
     "mouse"
   ],
   "author": "red",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/lavalse/cursor-traces/issues"
   },

@@ -1,6 +1,6 @@
 /**
- * cursor-traces v1.0.5
- * (CommonJS Module) - Fixed Infinite Scroll Bug (Vertical & Horizontal)
+ * cursor-traces v1.1.0
+ * (CommonJS Module) - Added destroy() and clearHistory() methods
  */
 
 let cursorTemplate = null;
@@ -8,6 +8,8 @@ let cursorTemplate = null;
 let pendingCursors = [];
 let drawnCursorIds = new Set();
 let resizeObserver = null;
+let clickHandler = null;
+let isInitialized = false;
 
 function getCursorTemplate(zIndex) {
     if (cursorTemplate) {
@@ -101,15 +103,43 @@ function recordPosition(x, y) {
         const ts = Date.now();
         list.push({ x, y, ts });
         sessionStorage.setItem('cursor-traces-list', JSON.stringify(list));
-    } catch (e) {}
+    } catch (e) {
+        console.warn('CursorTraces: Failed to record position -', e.message);
+    }
+}
+
+function validateOptions(options) {
+    const errors = [];
+    if (options.selector && typeof options.selector !== 'string') {
+        errors.push('selector must be a string');
+    }
+    if (options.zIndex !== undefined && typeof options.zIndex !== 'string' && typeof options.zIndex !== 'number') {
+        errors.push('zIndex must be a string or number');
+    }
+    if (options.useCapture !== undefined && typeof options.useCapture !== 'boolean') {
+        errors.push('useCapture must be a boolean');
+    }
+    return errors;
 }
 
 function init(options = {}) {
     if (typeof document === 'undefined' || typeof window === 'undefined') return;
 
+    // 输入验证
+    const validationErrors = validateOptions(options);
+    if (validationErrors.length > 0) {
+        console.warn('CursorTraces: Invalid options -', validationErrors.join(', '));
+    }
+
+    // 防止重复初始化
+    if (isInitialized) {
+        console.warn('CursorTraces: Already initialized. Call destroy() first to reinitialize.');
+        return;
+    }
+
     const config = {
         selector: options.selector || 'a',
-        zIndex: options.zIndex || '2147483647',
+        zIndex: String(options.zIndex || '2147483647'),
         useCapture: options.useCapture !== undefined ? options.useCapture : true
     };
 
@@ -123,7 +153,7 @@ function init(options = {}) {
                 if (pendingCursors.length > 0) {
                     const currentHeight = getDocHeight();
                     const currentWidth = getDocWidth();
-                    
+
                     [...pendingCursors].forEach(item => {
                         // 检查是否落入新的可见区域
                         if (item.y <= currentHeight + 50 && item.x <= currentWidth + 50) {
@@ -137,14 +167,17 @@ function init(options = {}) {
             resizeObserver.observe(document.documentElement);
         }
 
-        document.addEventListener('click', (e) => {
+        clickHandler = (e) => {
             const target = e.target.closest(config.selector);
             if (target) {
                 const item = { x: e.pageX, y: e.pageY, ts: Date.now() };
                 drawCursor(item, config.zIndex);
                 recordPosition(e.pageX, e.pageY);
             }
-        }, { capture: config.useCapture });
+        };
+
+        document.addEventListener('click', clickHandler, { capture: config.useCapture });
+        isInitialized = true;
     };
 
     if (document.readyState === 'loading') {
@@ -154,6 +187,47 @@ function init(options = {}) {
     }
 }
 
+function destroy() {
+    if (!isInitialized) return;
+
+    // 移除事件监听器
+    if (clickHandler) {
+        document.removeEventListener('click', clickHandler, true);
+        document.removeEventListener('click', clickHandler, false);
+        clickHandler = null;
+    }
+
+    // 断开 ResizeObserver
+    if (resizeObserver) {
+        resizeObserver.disconnect();
+        resizeObserver = null;
+    }
+
+    // 移除所有已绘制的光标
+    const cursors = document.querySelectorAll('svg[viewBox="0 0 12 19"]');
+    cursors.forEach(cursor => {
+        if (cursor.parentNode) {
+            cursor.parentNode.removeChild(cursor);
+        }
+    });
+
+    // 重置状态
+    cursorTemplate = null;
+    pendingCursors = [];
+    drawnCursorIds = new Set();
+    isInitialized = false;
+}
+
+function clearHistory() {
+    try {
+        sessionStorage.removeItem('cursor-traces-list');
+    } catch (e) {
+        console.warn('CursorTraces: Failed to clear history -', e.message);
+    }
+}
+
 module.exports = {
-    startCursorTraces: init
+    startCursorTraces: init,
+    destroy,
+    clearHistory
 };

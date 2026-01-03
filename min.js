@@ -1,10 +1,16 @@
+/**
+ * cursor-traces v1.1.0
+ * (Browser Global) - Added destroy() and clearHistory() methods
+ */
 (function(window) {
     'use strict';
 
     let cursorTemplate = null;
     let pendingCursors = [];
-    let drawnCursorIds = []; 
+    let drawnCursorIds = new Set();
     let resizeObserver = null;
+    let clickHandler = null;
+    let isInitialized = false;
 
     function getCursorTemplate(zIndex) {
         if (cursorTemplate) {
@@ -58,39 +64,31 @@
 
     function drawCursor(item, zIndex) {
         const id = item.x + '-' + item.y + '-' + (item.ts || '');
-        if (drawnCursorIds.indexOf(id) !== -1) return;
+        if (drawnCursorIds.has(id)) return;
 
         const template = getCursorTemplate(zIndex);
         const mountPoint = document.body || document.documentElement;
         if (!template || !mountPoint) return;
-        
+
         const currentHeight = getDocHeight();
         const currentWidth = getDocWidth();
 
-        // 检查 Y 轴 和 X 轴
+        // 如果垂直或水平方向超出，则暂存，避免撑开页面
         if (item.y > currentHeight + 50 || item.x > currentWidth + 50) {
-            let exists = false;
-            for(let i=0; i<pendingCursors.length; i++) {
-                if(pendingCursors[i].id === id) exists = true;
+            if (!pendingCursors.some(function(p) { return p.id === id; })) {
+                pendingCursors.push({ x: item.x, y: item.y, ts: item.ts, id: id });
             }
-            if (!exists) {
-                item.id = id;
-                pendingCursors.push(item);
-            }
-            return; 
+            return;
         }
 
         const svg = template.cloneNode(true);
         svg.style.left = item.x + "px";
         svg.style.top = item.y + "px";
         mountPoint.appendChild(svg);
-        drawnCursorIds.push(id);
+        drawnCursorIds.add(id);
 
-        const newPending = [];
-        for(let i=0; i<pendingCursors.length; i++) {
-            if(pendingCursors[i].id !== id) newPending.push(pendingCursors[i]);
-        }
-        pendingCursors = newPending;
+        // 成功绘制后移除 pending
+        pendingCursors = pendingCursors.filter(function(p) { return p.id !== id; });
     }
 
     function getHistory() {
@@ -108,52 +106,81 @@
         } catch (e) {}
     }
 
+    function validateOptions(options) {
+        const errors = [];
+        if (options.selector && typeof options.selector !== 'string') {
+            errors.push('selector must be a string');
+        }
+        if (options.zIndex !== undefined && typeof options.zIndex !== 'string' && typeof options.zIndex !== 'number') {
+            errors.push('zIndex must be a string or number');
+        }
+        if (options.useCapture !== undefined && typeof options.useCapture !== 'boolean') {
+            errors.push('useCapture must be a boolean');
+        }
+        return errors;
+    }
+
     function init(options) {
         options = options || {};
-        if (typeof document === 'undefined') return;
+        if (typeof document === 'undefined' || typeof window === 'undefined') return;
+
+        // 输入验证
+        const validationErrors = validateOptions(options);
+        if (validationErrors.length > 0) {
+            console.warn('CursorTraces: Invalid options -', validationErrors.join(', '));
+        }
+
+        // 防止重复初始化
+        if (isInitialized) {
+            console.warn('CursorTraces: Already initialized. Call destroy() first to reinitialize.');
+            return;
+        }
 
         const config = {
             selector: options.selector || 'a',
-            zIndex: options.zIndex || '2147483647',
+            zIndex: String(options.zIndex || '2147483647'),
             useCapture: options.useCapture !== undefined ? options.useCapture : true
         };
 
-        console.log("CursorTraces: v1.2.1 Initialized");
-
         const start = function() {
             const history = getHistory();
-            for(let i=0; i<history.length; i++) {
-                drawCursor(history[i], config.zIndex);
-            }
+            history.forEach(function(item) {
+                drawCursor(item, config.zIndex);
+            });
 
+            // 监听尺寸变化（支持无限滚动/响应式布局）
             if (window.ResizeObserver) {
                 resizeObserver = new ResizeObserver(function() {
                     if (pendingCursors.length > 0) {
                         const currentHeight = getDocHeight();
                         const currentWidth = getDocWidth();
-                        const cursorsToCheck = pendingCursors.slice();
-                        
-                        for(let i=0; i<cursorsToCheck.length; i++) {
-                            // 双向检查
-                            if (cursorsToCheck[i].y <= currentHeight + 50 && 
-                                cursorsToCheck[i].x <= currentWidth + 50) {
-                                drawCursor(cursorsToCheck[i], config.zIndex);
+                        var cursorsToCheck = pendingCursors.slice();
+
+                        cursorsToCheck.forEach(function(item) {
+                            if (item.y <= currentHeight + 50 && item.x <= currentWidth + 50) {
+                                drawCursor(item, config.zIndex);
                             }
-                        }
+                        });
                     }
                 });
                 resizeObserver.observe(document.body);
                 resizeObserver.observe(document.documentElement);
             }
 
-            document.addEventListener('click', function(e) {
-                const target = e.target.closest(config.selector);
+            clickHandler = function(e) {
+                var target = e.target;
+                if (target.closest) {
+                    target = target.closest(config.selector);
+                }
                 if (target) {
                     const item = { x: e.pageX, y: e.pageY, ts: Date.now() };
                     drawCursor(item, config.zIndex);
                     recordPosition(e.pageX, e.pageY);
                 }
-            }, { capture: config.useCapture });
+            };
+
+            document.addEventListener('click', clickHandler, { capture: config.useCapture });
+            isInitialized = true;
         };
 
         if (document.readyState === 'loading') {
@@ -163,8 +190,49 @@
         }
     }
 
+    function destroy() {
+        if (!isInitialized) return;
+
+        // 移除事件监听器
+        if (clickHandler) {
+            document.removeEventListener('click', clickHandler, true);
+            document.removeEventListener('click', clickHandler, false);
+            clickHandler = null;
+        }
+
+        // 断开 ResizeObserver
+        if (resizeObserver) {
+            resizeObserver.disconnect();
+            resizeObserver = null;
+        }
+
+        // 移除所有已绘制的光标
+        const cursors = document.querySelectorAll('svg[viewBox="0 0 12 19"]');
+        cursors.forEach(function(cursor) {
+            if (cursor.parentNode) {
+                cursor.parentNode.removeChild(cursor);
+            }
+        });
+
+        // 重置状态
+        cursorTemplate = null;
+        pendingCursors = [];
+        drawnCursorIds = new Set();
+        isInitialized = false;
+    }
+
+    function clearHistory() {
+        try {
+            sessionStorage.removeItem('cursor-traces-list');
+        } catch (e) {
+            console.warn('CursorTraces: Failed to clear history -', e.message);
+        }
+    }
+
     window.CursorTraces = {
-        startCursorTraces: init
+        startCursorTraces: init,
+        destroy: destroy,
+        clearHistory: clearHistory
     };
 
 })(window);
