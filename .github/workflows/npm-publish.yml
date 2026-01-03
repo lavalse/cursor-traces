@@ -13,19 +13,22 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      id-token: write # 必须：用于 OIDC 身份验证
+      id-token: write # 👈 如果是 Trusted Publishing，这行至关重要
 
     steps:
       - uses: actions/checkout@v4
-
+      
       - uses: actions/setup-node@v4
         with:
           node-version: '20.x'
+          # 👇 关键点 1：告诉 action 我们要发包到 npmjs.org
           registry-url: 'https://registry.npmjs.org'
 
-      - run: npm install
+      - run: npm ci # 或者 npm install
 
-      # 自动发布（不需要配置 NPM_TOKEN）
       - run: npm publish --provenance --access public
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }} # 这里用 GITHUB_TOKEN 仅仅是占位，实际验证走的是 OIDC
+          # 👇 关键点 2：将 Token 注入环境变量
+          # 如果你配置了 Trusted Publishing，用 secrets.GITHUB_TOKEN
+          # 如果你用的是传统 Token，用 secrets.NPM_TOKEN
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
